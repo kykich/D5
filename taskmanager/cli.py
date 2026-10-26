@@ -1,10 +1,12 @@
 """Command-line interface for Task Manager."""
 
 import argparse
+import json
+import os
 import sys
 from datetime import datetime
 
-from .models import TaskManager
+from .models import Task, TaskManager
 from . import storage
 from .utils import validate_task_index, validate_status, check_task_exists
 
@@ -58,6 +60,15 @@ def build_parser() -> argparse.ArgumentParser:
     # Export
     export_p = subparsers.add_parser("export", help="Export tasks to CSV")
     export_p.add_argument("filename", help="Output CSV filename")
+
+    # Export HTML
+    export_html_p = subparsers.add_parser("export-html", help="Export tasks to HTML report")
+    export_html_p.add_argument("filename", help="Output HTML filename")
+
+    # Update task status in tasks.json
+    task_p = subparsers.add_parser("task", help="Update task status in tasks.json")
+    task_p.add_argument("task_id", help="Task ID (e.g. BUG-1, FEAT-2)")
+    task_p.add_argument("action", choices=["done"], help="Action to perform")
 
     return parser
 
@@ -190,6 +201,77 @@ def handle_export(args, manager):
         print(f"Error exporting: {e}")
 
 
+def _load_tracker_tasks():
+    """Load tasks from tasks.json tracker file and convert to Task objects."""
+    tasks_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "tasks.json",
+    )
+    if not os.path.exists(tasks_path):
+        return []
+    with open(tasks_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    now = datetime.now()
+    tasks = []
+    for item in data.get("tasks", []):
+        task = Task(
+            title=item.get("title", ""),
+            description=item.get("acceptance", ""),
+            status="done" if item.get("status") == "done" else "todo",
+            priority="medium",
+            created_at=now,
+            done=item.get("status") == "done",
+        )
+        if task.done:
+            task.completed_at = now
+        tasks.append(task)
+    return tasks
+
+
+def handle_export_html(args, manager):
+    """Handle the 'export-html' command."""
+    try:
+        # Also load tasks from the tracker file
+        tracker_tasks = _load_tracker_tasks()
+        existing_titles = {t.title for t in manager.tasks}
+        for t in tracker_tasks:
+            if t.title not in existing_titles:
+                manager.tasks.append(t)
+        manager.export_html(args.filename)
+        print(f"HTML report exported to {args.filename}")
+    except IOError as e:
+        print(f"Error exporting: {e}")
+
+
+def handle_task(args, manager):
+    """Handle the 'task' command — update task status in tasks.json."""
+    tasks_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "tasks.json",
+    )
+
+    if not os.path.exists(tasks_path):
+        print(f"Error: {tasks_path} not found.")
+        return
+
+    with open(tasks_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    for task in data["tasks"]:
+        if task["id"] == args.task_id:
+            if task["status"] == "done":
+                print(f"Task {task['id']} is already done.")
+            else:
+                task["status"] = "done"
+                with open(tasks_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                    f.write("\n")
+                print(f"Task {task['id']} marked as done.")
+            return
+
+    print(f"Task {args.task_id} not found in tasks.json.")
+
+
 def main():
     """Main entry point for the CLI."""
     parser = build_parser()
@@ -217,6 +299,8 @@ def main():
         "stats": handle_stats,
         "search": handle_search,
         "export": handle_export,
+        "export-html": handle_export_html,
+        "task": handle_task,
     }
 
     handler = handlers.get(args.command)

@@ -243,3 +243,87 @@ class TestTaskManager:
         assert stats["total"] == 2
         assert "avg_days_open" in stats
         assert "overdue_count" in stats
+
+    def test_export_html(self, tmp_path):
+        """Test exporting tasks to HTML."""
+        tm = TaskManager()
+        tm.add_task("Task 1", "Description 1")
+        tm.add_task("Task 2", "Description 2")
+        tm.tasks[0].status = "done"
+        tm.tasks[0].mark_done()
+
+        html_file = tmp_path / "report.html"
+        tm.export_html(str(html_file))
+
+        assert html_file.exists()
+        content = html_file.read_text(encoding="utf-8")
+        assert "<!DOCTYPE html>" in content
+        assert "Task 1" in content
+        assert "Task 2" in content
+        assert "Description 1" in content
+        assert "Done</div>" in content or "done" in content.lower()
+        assert "Generated:" in content
+        assert "Execution Time" in content
+        assert "Total Execution Time" in content
+
+    def test_export_html_empty(self, tmp_path):
+        """Test exporting empty task list to HTML."""
+        tm = TaskManager()
+        html_file = tmp_path / "report.html"
+        tm.export_html(str(html_file))
+
+        assert html_file.exists()
+        content = html_file.read_text(encoding="utf-8")
+        assert "<!DOCTYPE html>" in content
+        assert "Total</div>\n        <div class=\"value\">0</div>" in content
+
+    def test_export_html_contains_metrics(self, tmp_path):
+        """Test HTML report contains all metric cards."""
+        tm = TaskManager()
+        tm.add_task("Task 1")
+        tm.add_task("Task 2")
+        tm.add_task("Task 3").status = "done"
+        tm.tasks[2].mark_done()
+
+        html_file = tmp_path / "report.html"
+        tm.export_html(str(html_file))
+
+        content = html_file.read_text(encoding="utf-8")
+        assert "Total" in content
+        assert "To Do" in content
+        assert "In Progress" in content
+        assert "Done</div>" in content or "Done" in content
+        assert "Overdue" in content
+        assert "Avg Days Open" in content
+        assert "Total Execution Time" in content
+
+    def test_html_escape(self):
+        """Test HTML escaping of special characters."""
+        assert TaskManager._html_escape("<script>") == "&lt;script&gt;"
+        assert TaskManager._html_escape('a "quote"') == 'a &quot;quote&quot;'
+        assert TaskManager._html_escape("a & b") == "a &amp; b"
+        assert TaskManager._html_escape("normal") == "normal"
+
+    def test_format_duration_seconds(self):
+        """Test formatting duration in seconds."""
+        assert TaskManager._format_duration(12.5) == "12s"
+        assert TaskManager._format_duration(0) == "0s"
+        assert TaskManager._format_duration(59.9) == "59s"
+
+    def test_format_duration_minutes(self):
+        """Test formatting duration in minutes."""
+        assert TaskManager._format_duration(45 * 60) == "45m 0s"
+        assert TaskManager._format_duration(45 * 60 + 30) == "45m 30s"
+        assert TaskManager._format_duration(59 * 60 + 59) == "59m 59s"
+
+    def test_format_duration_hours(self):
+        """Test formatting duration in hours."""
+        assert TaskManager._format_duration(1 * 3600) == "1h 0m"
+        assert TaskManager._format_duration(2 * 3600 + 30 * 60) == "2h 30m"
+        assert TaskManager._format_duration(23 * 3600 + 59 * 60) == "23h 59m"
+
+    def test_format_duration_days(self):
+        """Test formatting duration in days."""
+        assert TaskManager._format_duration(2 * 86400 + 3 * 3600) == "2d 3h"
+        assert TaskManager._format_duration(10 * 86400) == "10d 0h"
+        assert TaskManager._format_duration(1 * 86400 + 12 * 3600) == "1d 12h"

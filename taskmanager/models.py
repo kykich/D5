@@ -138,12 +138,14 @@ class TaskManager:
                 f.write(f"{i},{task.title},{task.description},{task.status},{task.priority},{task.created_at.isoformat()},{due},{completed},{task.done}\n")
 
     def stats(self) -> Dict[str, object]:
-        """Get task statistics: count by status, avg days open, overdue count."""
+        """Get task statistics: count by status, avg days open, overdue count, execution times."""
         counts = self.count_by_status()
         now = datetime.now()
         total_days = 0
         days_count = 0
         overdue_count = 0
+        total_execution_seconds = 0.0
+        task_times = []
 
         for task in self.tasks:
             # Calculate days open
@@ -158,13 +160,33 @@ class TaskManager:
             if not task.done and task.due_date and task.due_date < now:
                 overdue_count += 1
 
+            # Execution time
+            if task.done and task.completed_at:
+                exec_seconds = (task.completed_at - task.created_at).total_seconds()
+            else:
+                exec_seconds = (now - task.created_at).total_seconds()
+            total_execution_seconds += exec_seconds
+
+            task_times.append({
+                "index": len(task_times),
+                "title": task.title,
+                "status": task.status,
+                "priority": task.priority,
+                "execution_seconds": exec_seconds,
+                "done": task.done,
+            })
+
         avg_days = total_days / days_count if days_count > 0 else 0.0
+        avg_execution = total_execution_seconds / len(self.tasks) if self.tasks else 0.0
 
         return {
             "total": len(self.tasks),
             "by_status": counts,
             "avg_days_open": round(avg_days, 1),
             "overdue_count": overdue_count,
+            "total_execution_seconds": total_execution_seconds,
+            "avg_execution_seconds": round(avg_execution, 1),
+            "task_times": task_times,
         }
 
     def count_by_status(self) -> Dict[str, int]:
@@ -174,3 +196,211 @@ class TaskManager:
             if task.status in counts:
                 counts[task.status] += 1
         return counts
+
+    def export_html(self, filename: str) -> None:
+        """Export tasks and statistics to an HTML report file."""
+        stats = self.stats()
+        counts = stats["by_status"]
+        now = datetime.now()
+
+        # Build task rows
+        rows = ""
+        for i, task in enumerate(self.tasks):
+            status_class = task.status.replace("_", "-")
+            priority_class = task.priority.replace("_", "-")
+            due = task.due_date.strftime("%Y-%m-%d") if task.due_date else "—"
+            completed = task.completed_at.strftime("%Y-%m-%d") if task.completed_at else "—"
+
+            # Overdue check
+            is_overdue = not task.done and task.due_date and task.due_date < now
+            overdue_class = " overdue" if is_overdue else ""
+
+            rows += f"""        <tr class="{status_class}">
+          <td>{i}</td>
+          <td>{self._html_escape(task.title)}</td>
+          <td>{self._html_escape(task.description)}</td>
+          <td><span class="badge status-{status_class}">{task.status}</span></td>
+          <td><span class="badge priority-{priority_class}">{task.priority}</span></td>
+          <td>{task.created_at.strftime("%Y-%m-%d")}</td>
+          <td{overdue_class}>{due}</td>
+          <td>{completed}</td>
+          <td>{self._format_duration(stats["task_times"][i]["execution_seconds"])}</td>
+        </tr>\n"""
+
+        html = f"""<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager Report</title>
+  <style>
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      padding: 2rem;
+    }}
+    .container {{ max-width: 1200px; margin: 0 auto; }}
+    h1 {{ font-size: 1.8rem; margin-bottom: 1.5rem; color: #1a1a2e; }}
+    .metrics {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }}
+    .metric-card {{
+      background: #fff;
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }}
+    .metric-card .label {{
+      font-size: 0.85rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }}
+    .metric-card .value {{
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 0.3rem;
+    }}
+    .metric-card.total .value {{ color: #4361ee; }}
+    .metric-card.todo .value {{ color: #f72585; }}
+    .metric-card.in_progress .value {{ color: #f77f00; }}
+    .metric-card.done .value {{ color: #06d6a0; }}
+    .metric-card.overdue .value {{ color: #e63946; }}
+    .metric-card.avg .value {{ color: #7209b7; }}
+    .metric-card.total-exec .value {{ color: #0ea5e9; }}
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }}
+    th {{
+      background: #1a1a2e;
+      color: #fff;
+      padding: 0.8rem 1rem;
+      text-align: left;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }}
+    td {{
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }}
+    tr:last-child td {{ border-bottom: none; }}
+    tr.overdue td {{ background: #fff0f0; }}
+    .badge {{
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }}
+    .status-todo {{ background: #fce4ec; color: #c62828; }}
+    .status-in_progress {{ background: #fff3e0; color: #e65100; }}
+    .status-done {{ background: #e8f5e9; color: #2e7d32; }}
+    .priority-high {{ background: #ffebee; color: #c62828; }}
+    .priority-medium {{ background: #fff8e1; color: #f57f17; }}
+    .priority-low {{ background: #e8f5e9; color: #2e7d32; }}
+    .generated {{
+      text-align: right;
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 1rem;
+    }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Task Manager Report</h1>
+
+    <div class="metrics">
+      <div class="metric-card total">
+        <div class="label">Total</div>
+        <div class="value">{stats["total"]}</div>
+      </div>
+      <div class="metric-card todo">
+        <div class="label">To Do</div>
+        <div class="value">{counts["todo"]}</div>
+      </div>
+      <div class="metric-card in_progress">
+        <div class="label">In Progress</div>
+        <div class="value">{counts["in_progress"]}</div>
+      </div>
+      <div class="metric-card done">
+        <div class="label">Done</div>
+        <div class="value">{counts["done"]}</div>
+      </div>
+      <div class="metric-card overdue">
+        <div class="label">Overdue</div>
+        <div class="value">{stats["overdue_count"]}</div>
+      </div>
+      <div class="metric-card avg">
+        <div class="label">Avg Days Open</div>
+        <div class="value">{stats["avg_days_open"]}</div>
+      </div>
+      <div class="metric-card total-exec">
+        <div class="label">Total Execution Time</div>
+        <div class="value">{self._format_duration(stats["total_execution_seconds"])}</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Created</th>
+          <th>Due</th>
+          <th>Completed</th>
+          <th>Execution Time</th>
+        </tr>
+      </thead>
+      <tbody>
+{rows}      </tbody>
+    </table>
+
+    <div class="generated">Generated: {now.strftime("%Y-%m-%d %H:%M:%S")}</div>
+  </div>
+</body>
+</html>"""
+
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(html)
+
+    @staticmethod
+    def _html_escape(text: str) -> str:
+        """Escape HTML special characters."""
+        return (
+            text.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&#x27;")
+        )
+
+    @staticmethod
+    def _format_duration(seconds: float) -> str:
+        """Format seconds into human-readable duration."""
+        if seconds < 60:
+            return f"{int(seconds)}s"
+        minutes = seconds / 60
+        if minutes < 60:
+            return f"{int(minutes)}m {int(seconds % 60)}s"
+        hours = minutes / 60
+        if hours < 24:
+            return f"{int(hours)}h {int(minutes % 60)}m"
+        days = hours / 24
+        return f"{int(days)}d {int(hours % 24)}h"

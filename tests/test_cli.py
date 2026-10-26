@@ -143,3 +143,51 @@ class TestCLIExport:
         finally:
             if os.path.exists(filepath):
                 os.remove(filepath)
+
+
+class TestCLIExportHTML:
+    """Tests for the 'export-html' CLI command."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        run_cli("add", "Task 1")
+        run_cli("add", "Task 2")
+
+    def test_export_html(self):
+        """Test exporting to HTML report."""
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
+            filepath = f.name
+        try:
+            result = run_cli("export-html", filepath)
+            assert result.returncode == 0
+            assert "HTML report exported" in result.stdout
+            assert os.path.exists(filepath)
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+            assert "<!DOCTYPE html>" in content
+            assert "Task 1" in content
+            assert "Task 2" in content
+            assert "Total" in content
+            assert "Execution Time" in content
+            assert "Total Execution Time" in content
+        finally:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+    def test_export_html_contains_metrics(self):
+        """Test HTML report contains metric cards."""
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
+            filepath = f.name
+        try:
+            run_cli("export-html", filepath)
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+            assert "To Do" in content
+            assert "In Progress" in content
+            assert "Done" in content
+            assert "Overdue" in content
+            assert "Avg Days Open" in content
+            assert "Total Execution Time" in content
+        finally:
+            if os.path.exists(filepath):
+                os.remove(filepath)
