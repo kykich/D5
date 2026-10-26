@@ -1,0 +1,148 @@
+{
+  "tasks": [
+    {
+      "id": "BUG-1",
+      "title": "complete_task не обновляет completed_at",
+      "type": "bug",
+      "status": "done",
+      "acceptance": "Task.mark_done() устанавливает self.completed_at = datetime.now() при вызове",
+      "files": ["taskmanager/models.py"],
+      "prompt": "В методе Task.mark_done() (taskmanager/models.py) отсутствует установка self.completed_at = datetime.now(). Исправь это."
+    },
+    {
+      "id": "BUG-2",
+      "title": "filter_by_status case-sensitive",
+      "type": "bug",
+      "status": "done",
+      "acceptance": "filter_by_status('done') находит задачи со статусом 'Done', 'DONE', 'done'",
+      "files": ["taskmanager/models.py"],
+      "prompt": "В методе TaskManager.filter_by_status() (taskmanager/models.py) сравнение статуса case-sensitive. Сделай его case-insensitive."
+    },
+    {
+      "id": "BUG-3",
+      "title": "sort_by_date crashes on None due_date",
+      "type": "bug",
+      "status": "done",
+      "acceptance": "sort_by_date() не падает, задачи с None due_date сортируются в начало",
+      "files": ["taskmanager/models.py"],
+      "prompt": "В методе TaskManager.sort_by_date() (taskmanager/models.py) падает ValueError когда у задачи None due_date. Исправь — задачи с None должны быть в начале списка."
+    },
+    {
+      "id": "FEAT-1",
+      "title": "Добавить поиск по названию/описанию",
+      "type": "feature",
+      "status": "done",
+      "acceptance": "TaskManager.search(query) — поиск по title и description, case-insensitive",
+      "files": ["taskmanager/models.py"],
+      "prompt": "Добавь метод TaskManager.search(query: str) -> List[Task], который ищет задачи по title и description (case-insensitive). Добавь команду CLI 'search' в cli.py."
+    },
+    {
+      "id": "FEAT-2",
+      "title": "Добавить приоритеты (low/medium/high)",
+      "type": "feature",
+      "status": "done",
+      "acceptance": "Новое поле priority в Task, фильтрация и сортировка по приоритету",
+      "files": ["taskmanager/models.py", "taskmanager/cli.py"],
+      "prompt": "Добавь поле priority (low/medium/high) в Task. Добавь filter_by_priority() и sort_by_priority() в TaskManager. Добавь CLI-команды для фильтрации и сортировки по приоритету."
+    },
+    {
+      "id": "FEAT-3",
+      "title": "Экспорт в CSV",
+      "type": "feature",
+      "status": "done",
+      "acceptance": "taskmanager.export_csv(filename) — все задачи в CSV файл",
+      "files": ["taskmanager/models.py", "taskmanager/cli.py"],
+      "prompt": "Добавь метод TaskManager.export_csv(filename: str) -> None, который экспортирует все задачи в CSV. Добавь CLI-команду 'export'."
+    },
+    {
+      "id": "FEAT-4",
+      "title": "Команда 'stats' — сводка по задачам",
+      "type": "feature",
+      "status": "done",
+      "acceptance": "taskmanager.stats() — count by status, avg days open, overdue count",
+      "files": ["taskmanager/models.py", "taskmanager/cli.py"],
+      "prompt": "Добавь метод TaskManager.stats() -> dict, который возвращает: count by status, average days open, count of overdue tasks. Добавь CLI-команду 'stats'."
+    },
+    {
+      "id": "REFA-1",
+      "title": "Split cli.py main handler (>150 lines)",
+      "type": "refactor",
+      "status": "done",
+      "acceptance": "Каждая функция обработчик <= 60 строк, вынесены в отдельные функции",
+      "files": ["taskmanager/cli.py"],
+      "prompt": "Функция main() в cli.py слишком большая (>150 строк). Разбей её на отдельные функции-обработчики для каждой команды (handle_add, handle_list, handle_complete, и т.д.). Каждая функция <= 60 строк."
+    },
+    {
+      "id": "REFA-2",
+      "title": "Extract validation into utils.py",
+      "type": "refactor",
+      "status": "done",
+      "acceptance": "3 дублирующих валидации -> одна функция в utils.py",
+      "files": ["taskmanager/cli.py", "taskmanager/utils.py"],
+      "prompt": "В cli.py есть 3 дублирующих функции валидации (validate_task_index, validate_status, check_task_exists). Вынеси их в новый файл taskmanager/utils.py и импортируй из него."
+    },
+    {
+      "id": "REFA-3",
+      "title": "Add type hints to all functions",
+      "type": "refactor",
+      "status": "done",
+      "acceptance": "Все публичные функции имеют type annotations",
+      "files": ["taskmanager/models.py", "taskmanager/storage.py", "taskmanager/cli.py"],
+      "prompt": "Добавь type hints ко всем публичным функциям и методам классов во всех файлах taskmanager/. Используй typing.Optional, typing.List, typing.Dict где нужно."
+    },
+    {
+      "id": "TEST-1",
+      "title": "Unit tests для models.py",
+      "type": "test",
+      "status": "done",
+      "acceptance": "Task, TaskManager — cover create, complete, filter, sort, to_dict/from_dict",
+      "files": ["tests/test_models.py"],
+      "prompt": "Напиши unit-тесты для taskmanager/models.py. Тестируй: создание Task, mark_done, to_dict/from_dict, TaskManager.add_task, complete_task, delete_task, filter_by_status, sort_by_date, count_by_status. Используй pytest."
+    },
+    {
+      "id": "TEST-2",
+      "title": "Unit tests для storage.py",
+      "type": "test",
+      "status": "done",
+      "acceptance": "load/save/append — cover valid and invalid JSON scenarios",
+      "files": ["tests/test_storage.py"],
+      "prompt": "Напиши unit-тесты для taskmanager/storage.py. Тестируй: save_tasks, load_tasks, append_task. Покрой сценарии: валидный JSON, пустой файл, несуществующий файл. Используй pytest и tempfile."
+    },
+    {
+      "id": "TEST-3",
+      "title": "CLI integration tests",
+      "type": "test",
+      "status": "done",
+      "acceptance": "add/list/complete/delete через subprocess",
+      "files": ["tests/test_cli.py"],
+      "prompt": "Напиши integration-тесты для CLI. Тестируй команды: add, list, complete, delete через subprocess.run. Используй pytest. Проверь вывод и код возврата."
+    },
+    {
+      "id": "TEST-4",
+      "title": "Edge case tests",
+      "type": "test",
+      "status": "done",
+      "acceptance": "Empty storage, invalid input, duplicate IDs, boundary conditions",
+      "files": ["tests/test_edge_cases.py"],
+      "prompt": "Напиши edge case тесты: empty storage, invalid input (negative index, non-existent task), boundary conditions (single task, many tasks). Используй pytest."
+    },
+    {
+      "id": "DOC-1",
+      "title": "Update README with usage examples",
+      "type": "docs",
+      "status": "done",
+      "acceptance": "README содержит: install, usage examples, API reference, contribution guide",
+      "files": ["README.md"],
+      "prompt": "Обнови README.md: добавь подробные примеры использования, раздел API reference (описание классов и методов), раздел contribution guide, таблицу CLI-команд."
+    },
+    {
+      "id": "DOC-2",
+      "title": "Add docstrings to all public functions",
+      "type": "docs",
+      "status": "done",
+      "acceptance": "Все публичные функции имеют Google-style docstrings",
+      "files": ["taskmanager/models.py", "taskmanager/storage.py", "taskmanager/cli.py"],
+      "prompt": "Добавь Google-style docstrings ко всем публичным функциям и методам классов во всех файлах taskmanager/. Включи: Args, Returns, Raises секции где применимо."
+    }
+  ]
+}
