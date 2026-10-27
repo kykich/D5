@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      padding: 2rem;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 1.8rem; margin-bottom: 1.5rem; color: #1a1a2e; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .metric-card .label {
+      font-size: 0.85rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 0.3rem;
+    }
+    .metric-card.total .value { color: #4361ee; }
+    .metric-card.todo .value { color: #f72585; }
+    .metric-card.in_progress .value { color: #f77f00; }
+    .metric-card.done .value { color: #06d6a0; }
+    .metric-card.overdue .value { color: #e63946; }
+    .metric-card.avg .value { color: #7209b7; }
+    .metric-card.total-exec .value { color: #0ea5e9; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    th {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 0.8rem 1rem;
+      text-align: left;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr.overdue td { background: #fff0f0; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-todo { background: #fce4ec; color: #c62828; }
+    .status-in_progress { background: #fff3e0; color: #e65100; }
+    .status-done { background: #e8f5e9; color: #2e7d32; }
+    .priority-high { background: #ffebee; color: #c62828; }
+    .priority-medium { background: #fff8e1; color: #f57f17; }
+    .priority-low { background: #e8f5e9; color: #2e7d32; }
+    .generated {
+      text-align: right;
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Task Manager Report</h1>
+
+    <div class="metrics">
+      <div class="metric-card total">
+        <div class="label">Total</div>
+        <div class="value">27</div>
+      </div>
+      <div class="metric-card todo">
+        <div class="label">To Do</div>
+        <div class="value">11</div>
+      </div>
+      <div class="metric-card in_progress">
+        <div class="label">In Progress</div>
+        <div class="value">0</div>
+      </div>
+      <div class="metric-card done">
+        <div class="label">Done</div>
+        <div class="value">16</div>
+      </div>
+      <div class="metric-card overdue">
+        <div class="label">Overdue</div>
+        <div class="value">0</div>
+      </div>
+      <div class="metric-card avg">
+        <div class="label">Avg Days Open</div>
+        <div class="value">0.0</div>
+      </div>
+      <div class="metric-card total-exec">
+        <div class="label">Total Execution Time</div>
+        <div class="value">27m 6s</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Created</th>
+          <th>Due</th>
+          <th>Completed</th>
+          <th>Execution Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="todo">
+          <td>0</td>
+          <td>Task 1</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 28s</td>
+        </tr>
+        <tr class="todo">
+          <td>1</td>
+          <td>Task 2</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 28s</td>
+        </tr>
+        <tr class="todo">
+          <td>2</td>
+          <td>Buy groceries</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 28s</td>
+        </tr>
+        <tr class="todo">
+          <td>3</td>
+          <td>Walk the dog</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 28s</td>
+        </tr>
+        <tr class="todo">
+          <td>4</td>
+          <td>Buy groceries</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 27s</td>
+        </tr>
+        <tr class="todo">
+          <td>5</td>
+          <td>Walk the dog</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 27s</td>
+        </tr>
+        <tr class="todo">
+          <td>6</td>
+          <td>Task to export</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 27s</td>
+        </tr>
+        <tr class="todo">
+          <td>7</td>
+          <td>Task 1</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 27s</td>
+        </tr>
+        <tr class="todo">
+          <td>8</td>
+          <td>Task 2</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 27s</td>
+        </tr>
+        <tr class="todo">
+          <td>9</td>
+          <td>Task 1</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 27s</td>
+        </tr>
+        <tr class="todo">
+          <td>10</td>
+          <td>Task 2</td>
+          <td></td>
+          <td><span class="badge status-todo">todo</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2m 27s</td>
+        </tr>
+        <tr class="done">
+          <td>11</td>
+          <td>complete_task не обновляет completed_at</td>
+          <td>Task.mark_done() устанавливает self.completed_at = datetime.now() при вызове</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>12</td>
+          <td>filter_by_status case-sensitive</td>
+          <td>filter_by_status(&#x27;done&#x27;) находит задачи со статусом &#x27;Done&#x27;, &#x27;DONE&#x27;, &#x27;done&#x27;</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>13</td>
+          <td>sort_by_date crashes on None due_date</td>
+          <td>sort_by_date() не падает, задачи с None due_date сортируются в начало</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>14</td>
+          <td>Добавить поиск по названию/описанию</td>
+          <td>TaskManager.search(query) — поиск по title и description, case-insensitive</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>15</td>
+          <td>Добавить приоритеты (low/medium/high)</td>
+          <td>Новое поле priority в Task, фильтрация и сортировка по приоритету</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>16</td>
+          <td>Экспорт в CSV</td>
+          <td>taskmanager.export_csv(filename) — все задачи в CSV файл</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>17</td>
+          <td>Команда &#x27;stats&#x27; — сводка по задачам</td>
+          <td>taskmanager.stats() — count by status, avg days open, overdue count</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>18</td>
+          <td>Split cli.py main handler (&gt;150 lines)</td>
+          <td>Каждая функция обработчик &lt;= 60 строк, вынесены в отдельные функции</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>19</td>
+          <td>Extract validation into utils.py</td>
+          <td>3 дублирующих валидации -&gt; одна функция в utils.py</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>20</td>
+          <td>Add type hints to all functions</td>
+          <td>Все публичные функции имеют type annotations</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>21</td>
+          <td>Unit tests для models.py</td>
+          <td>Task, TaskManager — cover create, complete, filter, sort, to_dict/from_dict</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>22</td>
+          <td>Unit tests для storage.py</td>
+          <td>load/save/append — cover valid and invalid JSON scenarios</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>23</td>
+          <td>CLI integration tests</td>
+          <td>add/list/complete/delete через subprocess</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>24</td>
+          <td>Edge case tests</td>
+          <td>Empty storage, invalid input, duplicate IDs, boundary conditions</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>25</td>
+          <td>Update README with usage examples</td>
+          <td>README содержит: install, usage examples, API reference, contribution guide</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+        <tr class="done">
+          <td>26</td>
+          <td>Add docstrings to all public functions</td>
+          <td>Все публичные функции имеют Google-style docstrings</td>
+          <td><span class="badge status-done">done</span></td>
+          <td><span class="badge priority-medium">medium</span></td>
+          <td>2026-10-26</td>
+          <td>—</td>
+          <td>2026-10-26</td>
+          <td>0s</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="generated">Generated: 2026-10-26 23:33:22</div>
+  </div>
+</body>
+</html>

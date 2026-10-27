@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Execution Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header p { font-size: 1.1rem; opacity: 0.9; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+      background: #f8f9fa;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .stat-card.success { border-left: 4px solid #06d6a0; }
+    .stat-card.failure { border-left: 4px solid #e63946; }
+    .stat-card.total { border-left: 4px solid #667eea; }
+    .stat-value { font-size: 2.5rem; font-weight: 700; color: #1a1a2e; }
+    .stat-label { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.5rem; }
+    .time-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+      background: #f8f9fa;
+    }
+    .time-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .time-value { font-size: 2rem; font-weight: 700; color: #667eea; }
+    .time-label { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.5rem; }
+    .tasks-table { width: 100%; border-collapse: collapse; }
+    .task-row { background: white; border-bottom: 1px solid #eee; }
+    .task-row:last-child { border-bottom: none; }
+    .task-header { background: #1a1a2e; color: white; padding: 1rem; text-align: left; font-weight: 600; }
+    .task-cell { padding: 1rem; }
+    .status-badge { display: inline-block; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+    .status-completed { background: #d4edda; color: #155724; }
+    .status-failed { background: #f8d7da; color: #721c24; }
+    .type-bug { background: #ffebee; color: #c62828; }
+    .type-feature { background: #e3f2fd; color: #1565c0; }
+    .type-refactor { background: #fff3e0; color: #ef6c00; }
+    .type-test { background: #f3e5f5; color: #7b1fa2; }
+    .type-docs { background: #e8f5e9; color: #2e7d32; }
+    .time-cell { text-align: center; font-weight: 600; color: #667eea; }
+    .footer { text-align: center; padding: 1.5rem; background: #f8f9fa; color: #666; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Task Execution Report</h1>
+      <p>Generated: 2026-10-27T23:16:42.923435</p>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-card total">
+        <div class="stat-value">39</div>
+        <div class="stat-label">Total Tasks</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-value">39</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card failure">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Failed</div>
+      </div>
+      <div class="stat-card total">
+        <div class="stat-value">100.0%</div>
+        <div class="stat-label">Success Rate</div>
+      </div>
+    </div>
+    
+    <h2 style="padding: 2rem; color: #333;">Time Metrics</h2>
+    <div class="time-stats">
+      <div class="time-card">
+        <div class="time-value">345 min</div>
+        <div class="time-label">Total Execution Time</div>
+      </div>
+      <div class="time-card">
+        <div class="time-value">345 min</div>
+        <div class="time-label">Completed Tasks Time</div>
+      </div>
+      <div class="time-card">
+        <div class="time-value">0 min</div>
+        <div class="time-label">Failed Tasks Time</div>
+      </div>
+    </div>
+    
+    <h2 style="padding: 2rem; color: #333;">Task Details</h2>
+    <table class="tasks-table">
+      <thead class="task-header">
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Execution Time (min)</th>
+          <th>Prompt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="task-row">
+          <td class="task-cell"><strong>BUG-1</strong></td>
+          <td class="task-cell">complete_task не обновляет completed_at</td>
+          <td class="task-cell"><span class= + type_class + >bug</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">3</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">В методе Task.mark_done() (taskmanager/models.py) отсутствует установка self.completed_at = datetime...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>BUG-2</strong></td>
+          <td class="task-cell">filter_by_status case-sensitive</td>
+          <td class="task-cell"><span class= + type_class + >bug</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">8</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">В методе TaskManager.filter_by_status() (taskmanager/models.py) сравнение статуса case-sensitive. Сд...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>BUG-3</strong></td>
+          <td class="task-cell">sort_by_date crashes on None due_date</td>
+          <td class="task-cell"><span class= + type_class + >bug</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">3</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">В методе TaskManager.sort_by_date() (taskmanager/models.py) падает ValueError когда у задачи None du...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>FEAT-1</strong></td>
+          <td class="task-cell">Добавить поиск по названию/описанию</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь метод TaskManager.search(query: str) -> List[Task], который ищет задачи по title и descriptio...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>FEAT-2</strong></td>
+          <td class="task-cell">Добавить приоритеты (low/medium/high)</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">11</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь поле priority (low/medium/high) в Task. Добавь filter_by_priority() и sort_by_priority() в Ta...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>FEAT-3</strong></td>
+          <td class="task-cell">Экспорт в CSV</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь метод TaskManager.export_csv(filename: str) -> None, который экспортирует все задачи в CSV.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>FEAT-4</strong></td>
+          <td class="task-cell">Команда 'stats' — сводка по задачам</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">7</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь метод TaskManager.stats() -> dict, который возвращает: count by status, average days open, co...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>REFA-1</strong></td>
+          <td class="task-cell">Split cli.py main handler (>150 lines)</td>
+          <td class="task-cell"><span class= + type_class + >refactor</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">11</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Функция main() в cli.py слишком большая (>150 строк). Разбей её на отдельные функции-обработчики для...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>REFA-2</strong></td>
+          <td class="task-cell">Extract validation into utils.py</td>
+          <td class="task-cell"><span class= + type_class + >refactor</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">11</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">В cli.py есть 3 дублирующих функции валидации. Вынеси их в новый файл taskmanager/utils.py и импорти...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>REFA-3</strong></td>
+          <td class="task-cell">Add type hints to all functions</td>
+          <td class="task-cell"><span class= + type_class + >refactor</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">13</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь type hints ко всем публичным функциям и методам классов во всех файлах taskmanager/.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TEST-1</strong></td>
+          <td class="task-cell">Unit tests для models.py</td>
+          <td class="task-cell"><span class= + type_class + >test</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">13</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Напиши unit-тесты для taskmanager/models.py. Тестируй: создание Task, mark_done, to_dict/from_dict, ...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TEST-2</strong></td>
+          <td class="task-cell">Unit tests для storage.py</td>
+          <td class="task-cell"><span class= + type_class + >test</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">13</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Напиши unit-тесты для taskmanager/storage.py. Тестируй: save_tasks, load_tasks, append_task.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TEST-3</strong></td>
+          <td class="task-cell">CLI integration tests</td>
+          <td class="task-cell"><span class= + type_class + >test</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">9</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Напиши integration-тесты для CLI. Тестируй команды: add, list, complete, delete через subprocess.run...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TEST-4</strong></td>
+          <td class="task-cell">Edge case tests</td>
+          <td class="task-cell"><span class= + type_class + >test</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">13</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Напиши edge case тесты: empty storage, invalid input (negative index, non-existent task), boundary c...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>DOC-1</strong></td>
+          <td class="task-cell">Update README with usage examples</td>
+          <td class="task-cell"><span class= + type_class + >docs</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">5</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Обнови README.md: добавь подробные примеры использования, раздел API reference, раздел contribution ...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>DOC-2</strong></td>
+          <td class="task-cell">Add docstrings to all public functions</td>
+          <td class="task-cell"><span class= + type_class + >docs</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">9</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь Google-style docstrings ко всем публичным функциям и методам классов во всех файлах taskmanag...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-1</strong></td>
+          <td class="task-cell">Исправить логирование ошибок</td>
+          <td class="task-cell"><span class= + type_class + >bug</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">5</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь логирование в taskmanager/models.py. Используй logging.getLogger('taskmanager') и логгируй кл...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-2</strong></td>
+          <td class="task-cell">Добавить поддержку JSONL формата</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь методы import_jsonl(filename) и export_jsonl(filename) для работы с JSONL форматом.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-3</strong></td>
+          <td class="task-cell">Добавить фильтрацию по дате создания</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">6</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь метод filter_by_date_range(start_date: str, end_date: str) -> List[Task] для фильтрации задач...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-4</strong></td>
+          <td class="task-cell">Добавить сортировку по количеству дней открыто</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">6</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь метод sort_by_days_open() для сортировки задач по количеству дней с момента создания.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-5</strong></td>
+          <td class="task-cell">Добавить команду 'mark-in-progress'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">9</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'mark-in-progress <index>' для изменения статуса задачи на in_progress.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-6</strong></td>
+          <td class="task-cell">Добавить команду 'edit'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">11</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'edit <index>' для редактирования задачи. Поддерживай изменение title, descriptio...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-7</strong></td>
+          <td class="task-cell">Добавить команду 'duplicate'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">8</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'duplicate <index>' для создания копии задачи с новым ID и пометкой [DUPLICATE].</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-8</strong></td>
+          <td class="task-cell">Добавить команду 'batch-complete'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">8</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'batch-complete <index1> <index2> ...' для массового завершения нескольких задач.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-9</strong></td>
+          <td class="task-cell">Добавить команду 'batch-delete'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'batch-delete <index1> <index2> ...' для массового удаления нескольких задач.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-10</strong></td>
+          <td class="task-cell">Добавить команду 'export-json'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">8</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-json <filename>' для экспорта всех задач в JSON файл.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-11</strong></td>
+          <td class="task-cell">Добавить команду 'import-json'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">8</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'import-json <filename>' для импорта задач из JSON файла.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-12</strong></td>
+          <td class="task-cell">Добавить команду 'export-jsonl'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-jsonl <filename>' для экспорта всех задач в JSONL файл.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-13</strong></td>
+          <td class="task-cell">Добавить команду 'import-jsonl'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">6</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'import-jsonl <filename>' для импорта задач из JSONL файла.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-14</strong></td>
+          <td class="task-cell">Добавить команду 'export-csv-with-stats'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">11</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-csv-stats <filename>' для экспорта задач в CSV со статистикой (count, avg...</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-15</strong></td>
+          <td class="task-cell">Добавить команду 'export-html'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">8</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-html <filename>' для экспорта задач в красивый HTML файл.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-16</strong></td>
+          <td class="task-cell">Добавить команду 'export-markdown'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">9</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-md <filename>' для экспорта задач в Markdown файл.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-17</strong></td>
+          <td class="task-cell">Добавить команду 'export-yaml'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-yaml <filename>' для экспорта задач в YAML файл.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-18</strong></td>
+          <td class="task-cell">Добавить команду 'import-csv'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">6</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'import-csv <filename>' для импорта задач из CSV файла.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-19</strong></td>
+          <td class="task-cell">Добавить команду 'import-markdown'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'import-md <filename>' для импорта задач из Markdown файла.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-20</strong></td>
+          <td class="task-cell">Добавить команду 'import-yaml'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">11</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'import-yaml <filename>' для импорта задач из YAML файла.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-21</strong></td>
+          <td class="task-cell">Добавить команду 'export-trello'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">10</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-trello <filename>' для экспорта задач в формате для Trello.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-22</strong></td>
+          <td class="task-cell">Добавить команду 'import-trello'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">7</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'import-trello <filename>' для импорта задач из формата Trello.</td>
+        </tr>
+        <tr class="task-row">
+          <td class="task-cell"><strong>TASK-23</strong></td>
+          <td class="task-cell">Добавить команду 'export-notion'</td>
+          <td class="task-cell"><span class= + type_class + >feature</span></td>
+          <td class="task-cell"><span class= + status_class + >Completed</span></td>
+          <td class="time-cell">9</td>
+          <td class="task-cell" style="max-width: 400px; font-size: 0.85rem;">Добавь CLI команду 'export-notion <filename>' для экспорта задач в формате для Notion.</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="footer">
+      <p>Report generated at 2026-10-27 23:16:42</p>
+    </div>
+  </div>
+</body>
+</html>
